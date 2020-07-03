@@ -6,21 +6,24 @@
 #include <chrono>
 #include <thread>
 
-const float PI = atanf(1) * 4;
+const int fps = 60;
+const float PI = atanf(1) * 4.0f;
+const float gravConst = 10.0f;
 
 sf::RenderWindow window(sf::VideoMode::getDesktopMode(), "2D Universe", sf::Style::Fullscreen);
 const float screenWidth = (float)window.getSize().x;
 const float screenHeight = (float)window.getSize().y;
 unsigned long long frameCount;
-const int fps = 60;
 
 #include "random.h"
 #include "Asteroid.h"
+#include "Gravity.h"
 
 int main() {
 	srand(unsigned(time(NULL)));
 
-	Asteroid janea(screenWidth / 2, screenHeight / 2, 100);
+	std::vector<Asteroid> asteroids;
+	asteroids.push_back(Asteroid(screenWidth / 2, screenHeight / 2, 100));
 
 	sf::Event event;
 	std::chrono::system_clock::time_point start = std::chrono::system_clock::now();
@@ -38,12 +41,15 @@ int main() {
 
 			window.clear(sf::Color(51, 51, 51));
 
-			janea.show();
+			for (Asteroid& asteroid : asteroids)
+				asteroid.show();
 
 			window.display();
 
-			janea.update();
-			
+			for (Asteroid& asteroid : asteroids)
+				asteroid.update();
+
+			applyGravity(asteroids);
 		}
 	}
 

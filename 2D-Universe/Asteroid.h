@@ -5,11 +5,13 @@ struct Asteroid {
 	sf::Vector2f pos, speed;
 	std::vector<sf::Vector2f> vertices;
 	float rotAngle;
+	float mass;
 
 	Asteroid(float x_, float y_, float radius_) {
 		pos = {x_, y_};
 		speed = { 0, 0 };
-		rotAngle = randomf(-PI / 64, PI / 64);
+		rotAngle = randomf(-PI / 100, PI / 100);
+		mass = randomf(75, 125);
 
 		int vertCount = randomi(3, 6);
 
