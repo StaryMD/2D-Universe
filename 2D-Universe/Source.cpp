@@ -6,8 +6,6 @@
 #include <chrono>
 #include <thread>
 
-int h;
-
 const float PI = atanf(1) * 4;
 
 sf::RenderWindow window(sf::VideoMode::getDesktopMode(), "2D Universe", sf::Style::Fullscreen);
@@ -16,9 +14,13 @@ const float screenHeight = (float)window.getSize().y;
 unsigned long long frameCount;
 const int fps = 60;
 
+#include "random.h"
+#include "Asteroid.h"
+
 int main() {
 	srand(unsigned(time(NULL)));
 
+	Asteroid janea(screenWidth / 2, screenHeight / 2, 100);
 
 	sf::Event event;
 	std::chrono::system_clock::time_point start = std::chrono::system_clock::now();
@@ -26,21 +28,22 @@ int main() {
 		std::chrono::system_clock::time_point now = std::chrono::system_clock::now();
 		std::chrono::duration<double, std::milli> interval = now - start;
 
-		while (window.pollEvent(event)) {
-			if (event.type == sf::Event::Closed)
-				window.close();
+		if (interval.count() >= 1000 / fps) {
+			frameCount++;
+			start = now;
 
+			while (window.pollEvent(event)) 
+				if (event.type == sf::Event::Closed)
+					window.close();
 
-			if (interval.count() >= 1000 / fps) {
-				frameCount++;
-				start = now;
+			window.clear(sf::Color(51, 51, 51));
 
-				window.clear(sf::Color(51, 51, 51));
+			janea.show();
 
+			window.display();
 
-
-				window.display();
-			}
+			janea.update();
+			
 		}
 	}
 
