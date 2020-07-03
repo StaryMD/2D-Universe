@@ -6,6 +6,8 @@
 #include <chrono>
 #include <thread>
 
+int h;
+
 const float PI = atanf(1) * 4;
 
 sf::RenderWindow window(sf::VideoMode::getDesktopMode(), "2D Universe", sf::Style::Fullscreen);
