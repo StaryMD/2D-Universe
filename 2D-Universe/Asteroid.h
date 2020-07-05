@@ -1,7 +1,6 @@
 #pragma once
 
 struct Asteroid {
-	sf::ConvexShape polygon;
 	sf::Vector2f pos, speed;
 	std::vector<sf::Vector2f> vertices;
 	float radius;
@@ -19,23 +18,21 @@ struct Asteroid {
 
 		for (int i = 0; i < vertCount; i++) {
 			float angle = 2 * PI / vertCount * i;
-			float x = radius_ * sin(angle);
-			float y = radius_ * cos(angle);
+			float x = radius * sin(angle);
+			float y = radius * cos(angle);
 			vertices.push_back({x, y});
 		}
-
-		polygon.setPointCount(vertCount);
-		polygon.setOutlineColor(sf::Color::White);
-		polygon.setFillColor(sf::Color(51, 51, 51));
-		polygon.setOutlineThickness(2);
-		polygon.setPosition(0, 0);
 	}
 
-	void show(float Scale, sf::Vector2f offset) {
-		for (int i = 0; i < int(vertices.size()); i++)
-			polygon.setPoint(i, (pos - offset  + vertices[i]) * Scale);
+	void show(float scale, sf::Vector2f offset) {
+		sf::Vector2f trueOffset = pos - offset;
 
-		window.draw(polygon);
+		sf::Vertex line[] = { (trueOffset + vertices.back()) * scale , (trueOffset + vertices.back()) * scale };
+		bool e = 0;
+		for (auto& vertex: vertices) {
+			line[e = !e] = (trueOffset + vertex) * scale;
+			window.draw(line, 2, sf::Lines);
+		}
 	}
 
 	void rotate() {

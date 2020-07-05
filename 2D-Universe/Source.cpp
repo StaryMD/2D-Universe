@@ -7,8 +7,8 @@
 #include <thread>
 
 const int objCount = 1000;
-const int fps = 60;
-const float gravConst = 10.0f;
+const int fps[] = { 1, 2, 5, 10, 15, 20, 30, 45, 60, 90, 120, 180, 240, 480, 960 , 1920};
+const float gravConst = 0.1f;
 const float PI = atanf(1) * 4.0f;
 
 sf::RenderWindow window(sf::VideoMode::getDesktopMode(), "2D Universe", sf::Style::Fullscreen);
@@ -23,10 +23,12 @@ unsigned long long frameCount;
 int main() {
 	srand(unsigned(time(NULL)));
 
+	int fpsIdx = 8;
+
 	std::vector<Asteroid> asteroids;
 	for (int i = 0; i < objCount; i++) {
-		float x = randomf(0, screenWidth);
-		float y = randomf(0, screenHeight);
+		float x = randomf(-2 * screenWidth, 2 * screenWidth);
+		float y = randomf(-2 * screenHeight, 2 * screenHeight);
 		float r = randomf(75, 125);
 
 		asteroids.push_back(Asteroid(x, y, r));
@@ -38,13 +40,20 @@ int main() {
 		std::chrono::system_clock::time_point now = std::chrono::system_clock::now();
 		std::chrono::duration<double, std::milli> interval = now - start;
 
-		if (interval.count() >= 1000 / fps) {
+		if (!sf::Keyboard::isKeyPressed(sf::Keyboard::Key::Space) && interval.count() >= 1000 / fps[fpsIdx]) {
 			frameCount++;
 			start = now;
 
-			while (window.pollEvent(event)) 
-				if (event.type == sf::Event::Closed)
+			while (window.pollEvent(event))
+				if (event.type == sf::Event::Closed || sf::Keyboard::isKeyPressed(sf::Keyboard::Key::Escape))
 					window.close();
+				else
+					if(event.type == sf::Event::KeyReleased) {
+						if(event.key.code == sf::Keyboard::Up && fpsIdx < 15)
+							fpsIdx++;
+						if (event.key.code == sf::Keyboard::Down && fpsIdx > 0)
+							fpsIdx--;
+					}
 
 			window.clear(sf::Color(51, 51, 51));
 
@@ -53,7 +62,7 @@ int main() {
 			getScale(asteroids, scale, offset);
 			for (Asteroid& asteroid : asteroids)
 				asteroid.show(scale, offset);
-
+			
 			window.display();
 
 			for (Asteroid& asteroid : asteroids)
