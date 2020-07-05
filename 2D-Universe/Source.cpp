@@ -6,9 +6,10 @@
 #include <chrono>
 #include <thread>
 
+const int objCount = 1000;
 const int fps = 60;
-const float PI = atanf(1) * 4.0f;
 const float gravConst = 10.0f;
+const float PI = atanf(1) * 4.0f;
 
 sf::RenderWindow window(sf::VideoMode::getDesktopMode(), "2D Universe", sf::Style::Fullscreen);
 const float screenWidth = (float)window.getSize().x;
@@ -23,7 +24,13 @@ int main() {
 	srand(unsigned(time(NULL)));
 
 	std::vector<Asteroid> asteroids;
-	asteroids.push_back(Asteroid(screenWidth / 2, screenHeight / 2, 100));
+	for (int i = 0; i < objCount; i++) {
+		float x = randomf(0, screenWidth);
+		float y = randomf(0, screenHeight);
+		float r = randomf(75, 125);
+
+		asteroids.push_back(Asteroid(x, y, r));
+	}
 
 	sf::Event event;
 	std::chrono::system_clock::time_point start = std::chrono::system_clock::now();
@@ -41,8 +48,11 @@ int main() {
 
 			window.clear(sf::Color(51, 51, 51));
 
+			float scale;
+			sf::Vector2f offset;
+			getScale(asteroids, scale, offset);
 			for (Asteroid& asteroid : asteroids)
-				asteroid.show();
+				asteroid.show(scale, offset);
 
 			window.display();
 

@@ -4,10 +4,12 @@ struct Asteroid {
 	sf::ConvexShape polygon;
 	sf::Vector2f pos, speed;
 	std::vector<sf::Vector2f> vertices;
+	float radius;
 	float rotAngle;
 	float mass;
 
 	Asteroid(float x_, float y_, float radius_) {
+		radius = radius_;
 		pos = {x_, y_};
 		speed = { 0, 0 };
 		rotAngle = randomf(-PI / 100, PI / 100);
@@ -29,9 +31,9 @@ struct Asteroid {
 		polygon.setPosition(0, 0);
 	}
 
-	void show(float Scale = 1.0f) {
+	void show(float Scale, sf::Vector2f offset) {
 		for (int i = 0; i < int(vertices.size()); i++)
-			polygon.setPoint(i, (pos + vertices[i]) * Scale);
+			polygon.setPoint(i, (pos - offset  + vertices[i]) * Scale);
 
 		window.draw(polygon);
 	}
@@ -50,5 +52,29 @@ struct Asteroid {
 		pos += speed;
 		rotate();
 	}
-
 };
+
+void getScale(std::vector<Asteroid>& asteroids, float& scale, sf::Vector2f& offset) {
+	float x0 = 0, y0 = 0, x1 = screenWidth, y1 = screenHeight;
+
+	for (Asteroid& ast : asteroids) {
+		x0 = std::min(x0, ast.pos.x - 2 * ast.radius);
+		y0 = std::min(y0, ast.pos.y - 2 * ast.radius);
+		x1 = std::max(x1, ast.pos.x + 2 * ast.radius);
+		y1 = std::max(y1, ast.pos.y + 2 * ast.radius);
+	}
+	x1 -= x0;
+	y1 -= y0;
+	x1 = std::abs(x1);
+	y1 = std::abs(y1);
+
+	float ratioX = screenWidth / x1, ratioY = screenHeight / y1;
+	if (ratioX < ratioY) {
+		scale = ratioX;
+		offset = { x0, y0 };
+	}
+	else {
+		scale = ratioY;
+		offset = { x0 , y0 };
+	}
+}
