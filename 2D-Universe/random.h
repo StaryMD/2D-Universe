@@ -23,3 +23,7 @@ float distSquared(sf::Vector2f a, sf::Vector2f b) {
 float dist(sf::Vector2f a, sf::Vector2f b) {
 	return sqrt(sqr(a.x - b.x) + sqr(a.y - b.y));
 }
+
+float crossProd(sf::Vector2f a, sf::Vector2f b) {
+	return a.x * b.y - a.y * b.x;
+}

@@ -6,8 +6,8 @@
 #include <chrono>
 #include <thread>
 
-const int objCount = 1000;
-const int fps[] = { 1, 2, 5, 10, 15, 20, 30, 45, 60, 90, 120, 180, 240, 480, 960 , 1920};
+const int objCount = 30;
+const int fps[] = {1, 2, 5, 10, 15, 20, 30, 45, 60, 90, 120, 180, 240, 480, 960 , 1920};
 const float gravConst = 0.1f;
 const float PI = atanf(1) * 4.0f;
 
@@ -17,13 +17,17 @@ const float screenHeight = (float)window.getSize().y;
 unsigned long long frameCount;
 
 #include "random.h"
+#include "Line.h"
 #include "Asteroid.h"
 #include "Gravity.h"
+#include "Collision.h"
 
 int main() {
 	srand(unsigned(time(NULL)));
+	std::ios_base::sync_with_stdio(0);
 
 	int fpsIdx = 8;
+	std::vector<bool> collisions(objCount);
 
 	std::vector<Asteroid> asteroids;
 	for (int i = 0; i < objCount; i++) {
@@ -55,22 +59,23 @@ int main() {
 							fpsIdx--;
 					}
 
+			for (Asteroid& asteroid : asteroids)
+				asteroid.update();
+
+			applyGravity(asteroids);
+
 			window.clear(sf::Color(51, 51, 51));
 
 			float scale;
 			sf::Vector2f offset;
 			getScale(asteroids, scale, offset);
-			for (Asteroid& asteroid : asteroids)
-				asteroid.show(scale, offset);
+			//getCollisions(asteroids, collisions);
+			getCollisions(asteroids);
+			for (int i = 0; i < objCount; i++)
+				asteroids[i].show(scale, offset, (collisions[i] ? sf::Color::Red : sf::Color::White));
 			
 			window.display();
-
-			for (Asteroid& asteroid : asteroids)
-				asteroid.update();
-
-			applyGravity(asteroids);
 		}
 	}
-
 	return 0;
 }

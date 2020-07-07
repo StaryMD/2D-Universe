@@ -1,6 +1,7 @@
 #pragma once
 
 struct Asteroid {
+	sf::ConvexShape polygon;
 	sf::Vector2f pos, speed;
 	std::vector<sf::Vector2f> vertices;
 	float radius;
@@ -22,17 +23,22 @@ struct Asteroid {
 			float y = radius * cos(angle);
 			vertices.push_back({x, y});
 		}
+
+		polygon.setPointCount(vertCount);
+		polygon.setFillColor(sf::Color(51, 51, 51));
+		polygon.setOutlineThickness(1);
+		polygon.setPosition(0, 0);
 	}
 
-	void show(float scale, sf::Vector2f offset) {
+	void show(float scale, sf::Vector2f offset, sf::Color color = sf::Color::White) {
 		sf::Vector2f trueOffset = pos - offset;
+		polygon.setOutlineColor(color);
 
-		sf::Vertex line[] = { (trueOffset + vertices.back()) * scale , (trueOffset + vertices.back()) * scale };
-		bool e = 0;
-		for (auto& vertex: vertices) {
-			line[e = !e] = (trueOffset + vertex) * scale;
-			window.draw(line, 2, sf::Lines);
-		}
+		for (int i = 0; i < int(vertices.size()); i++)
+			polygon.setPoint(i, (vertices[i] + trueOffset) * scale);
+
+		window.draw(polygon);
+
 	}
 
 	void rotate() {
@@ -48,6 +54,28 @@ struct Asteroid {
 	void update() {
 		pos += speed;
 		rotate();
+	}
+
+	bool collides(Asteroid other) {
+		for (auto& vertex : vertices) {
+			Line line1(pos, vertex + pos);
+
+			sf::Vector2f points[] = { other.vertices.back() + other.pos, other.vertices.back() + other.pos };
+			bool step = 0;
+			for (auto& vertex2 : other.vertices) {
+				points[step = !step] = vertex2 + other.pos;
+
+				Line line2(points[0].x, points[0].y, points[1].x, points[1].y);
+				float t = line1.intersects(line2);
+				if (t != -1) { // Happens upo collision
+
+					pos -= (vertex) * (1 - t);
+					speed *= -.3f;
+					other.speed *= -.3f;
+				}
+			}
+		}
+		return false;
 	}
 };
 
